@@ -754,7 +754,8 @@
   }
 
   document.getElementById("btn-next").onclick = goNext;
-  document.getElementById("btn-hint").onclick = showHint;
+  var hintBtn = document.getElementById("btn-hint");
+  if (hintBtn) hintBtn.onclick = showHint;
   document.getElementById("btn-guide").onclick = showGuide;
   var guideStart = document.getElementById("btn-guide-start");
   if (guideStart) guideStart.onclick = showGuide;
