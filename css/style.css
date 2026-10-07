@@ -141,7 +141,7 @@ h2 { font-size: clamp(1.35rem, 3vw, 1.85rem); }
 
 .axes-strip {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 10px;
   margin: 22px 0;
 }

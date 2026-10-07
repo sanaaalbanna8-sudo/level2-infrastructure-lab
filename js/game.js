@@ -381,7 +381,10 @@
       db: '<ellipse cx="36" cy="16" rx="18" ry="8" fill="#2b6b5e"/><path d="M18 16v24c0 5 8 8 18 8s18-3 18-8V16" fill="#243044"/><ellipse cx="36" cy="28" rx="18" ry="8" fill="none" stroke="#d9a441"/>',
       sheet: '<rect x="14" y="12" width="44" height="40" fill="#fff" stroke="#243044"/><path d="M14 24h44M14 36h44M28 12v40M42 12v40" stroke="#2b6b5e"/>',
       router: '<rect x="12" y="26" width="48" height="18" rx="3" fill="#243044"/><circle cx="22" cy="35" r="2" fill="#2f7d4a"/><path d="M30 26c4-8 12-8 16 0" fill="none" stroke="#d9a441" stroke-width="3"/>',
-      sensor: '<circle cx="36" cy="34" r="10" fill="#c24e1f"/><path d="M36 8v10M36 46v10M14 34h10M48 34h12" stroke="#243044" stroke-width="3"/>'
+      sensor: '<circle cx="36" cy="34" r="10" fill="#c24e1f"/><path d="M36 8v10M36 46v10M14 34h10M48 34h12" stroke="#243044" stroke-width="3"/>',
+      screen: '<rect x="10" y="12" width="52" height="32" rx="3" fill="#243044"/><rect x="14" y="16" width="44" height="24" fill="#7fb7c9"/><rect x="30" y="44" width="12" height="6" fill="#3b4658"/><rect x="22" y="50" width="28" height="4" fill="#243044"/>',
+      shield: '<path d="M36 8 L58 16 V34 C58 48 36 58 36 58 C36 58 14 48 14 34 V16 Z" fill="#2b6b5e"/><path d="M28 32 l6 6 12-14" fill="none" stroke="#fff8eb" stroke-width="3"/>',
+      oswin: '<rect x="12" y="12" width="48" height="40" rx="3" fill="#243044"/><rect x="16" y="18" width="18" height="14" fill="#7fb7c9"/><rect x="38" y="18" width="18" height="14" fill="#d9a441"/><rect x="16" y="34" width="40" height="12" fill="#fff8eb"/>'
     };
     return '<svg viewBox="0 0 72 64" aria-hidden="true">' + (s[type] || s.box) + "</svg>";
   }
