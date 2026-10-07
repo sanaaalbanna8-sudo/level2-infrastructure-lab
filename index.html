@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>مختبر البنية التحتية — المستوى الثاني</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+
+  <section id="screen-start" class="screen screen-start">
+    <div class="start-wrap">
+      <p class="eyebrow">للصف المبتدئ · تكنولوجيا المعلومات</p>
+      <h1>
+        مختبر البنية التحتية
+        <span class="title-en">Level 2 · Learning Aim A</span>
+      </h1>
+      <p class="level-line">الوحدة 1 · كيف تلبي تكنولوجيا المعلومات احتياجات المؤسسات</p>
+      <p class="lead">
+        أنتِ مستشارة تقنية في أول الطريق. كل قصة لمؤسسة صغيرة.
+        اختاري أربعة أشياء تناسبها فقط، واتركي ما يصلح لمؤسسة أخرى.
+        البطاقات كلها من مواصفة الهدف أ، والفرق هو: هل تناسب هذه المؤسسة اليوم؟
+      </p>
+
+      <div class="axes-strip" id="axes-strip"></div>
+
+      <div class="how">
+        <div class="how-card">
+          <span class="how-num">1</span>
+          <p>اقرئي القصة: ماذا تفعل المؤسسة، وأين تعمل؟</p>
+        </div>
+        <div class="how-card">
+          <span class="how-num">2</span>
+          <p>اختاري ٤ بطاقات. اضغطي ثم ضعيها في الصندوق، أو اسحبيها.</p>
+        </div>
+        <div class="how-card">
+          <span class="how-num">3</span>
+          <p>اقرئي السبب. الخطأ يخصم نقطة واحدة فقط، ثم تتابعين.</p>
+        </div>
+      </div>
+
+      <form class="player-form" id="player-form" novalidate>
+        <label>
+          اسم الطالبة
+          <input type="text" id="student-name" autocomplete="name" required />
+          <small class="field-error hidden" id="name-error">اكتبي الاسم حتى نبدأ المهمة.</small>
+        </label>
+        <label>
+          الشعبة
+          <input type="text" id="student-class" autocomplete="off" />
+        </label>
+        <div class="start-actions">
+          <button type="submit" class="btn btn-primary" id="btn-start">ابدئي المهمة الأولى</button>
+          <button type="button" class="btn btn-ghost" id="btn-guide-start">دليل الهدف أ</button>
+        </div>
+      </form>
+      <p class="copyright">جميع الحقوق محفوظة / All rights reserved — Sanaa Albanna</p>
+    </div>
+  </section>
+
+  <section id="screen-game" class="screen screen-game hidden" hidden>
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark">L2</span>
+        <div>
+          <strong>مختبر البنية التحتية</strong>
+          <small class="brand-en">Level 2 · Aim A</small>
+          <small id="axis-live">اقرئي القصة ثم اختاري أربعة</small>
+        </div>
+      </div>
+      <div class="meter">
+        <span id="scenario-index" dir="ltr">1 / 13</span>
+        <div class="dots" id="progress-dots"></div>
+      </div>
+      <div class="scorebox">
+        <span>النقاط</span>
+        <b id="score">0</b>
+      </div>
+    </header>
+
+    <article class="brief" id="brief">
+      <div class="brief-kicker" id="company-kicker">المؤسسة</div>
+      <h2 id="scenario-title">العنوان</h2>
+      <p id="scenario-story"></p>
+      <p class="mission" id="scenario-mission"></p>
+    </article>
+
+    <div class="workspace">
+      <section class="pool-panel">
+        <div class="panel-head">
+          <h3>بطاقات من المواصفة</h3>
+          <p>ست بطاقات. أربعة تناسب المؤسسة، واثنتان لمكان آخر.</p>
+        </div>
+        <div class="pool" id="pool"></div>
+      </section>
+
+      <aside class="crate-panel">
+        <div class="crate" id="dropzone" role="button" tabindex="0" aria-label="صندوق المؤسسة">
+          <div class="crate-lid">
+            <span>صندوق المؤسسة</span>
+            <b id="needed-count" dir="ltr">0 / 4</b>
+          </div>
+          <p class="crate-hint" id="crate-hint">ضعي هنا ما يناسب هذه المؤسسة</p>
+          <div class="crate-items" id="crate-items"></div>
+        </div>
+        <div class="actions">
+          <button type="button" class="btn btn-ghost" id="btn-hint">تلميح</button>
+          <button type="button" class="btn btn-ghost" id="btn-guide">دليل الهدف أ</button>
+          <button type="button" class="btn btn-primary" id="btn-next" disabled>التالي</button>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section id="screen-end" class="screen screen-end hidden" hidden>
+    <div class="end-card">
+      <p class="eyebrow">أنهيتِ المختبر</p>
+      <h2>الاختيار المناسب أهم من كثرة الأدوات</h2>
+      <p class="lead">تكنولوجيا المعلومات تخدم وظيفة المؤسسة. ما ينفع مخبزاً قد لا ينفع عيادة، وما ينفع جمعية قد لا ينفع متجراً.</p>
+      <div class="end-stats">
+        <div><span>النقاط</span><b id="end-score">0</b></div>
+        <div><span>اختيارات صحيحة</span><b id="end-correct">0</b></div>
+        <div><span>محاولات خاطئة</span><b id="end-wrong">0</b></div>
+      </div>
+      <p class="end-note" id="end-note"></p>
+      <div class="start-actions">
+        <button type="button" class="btn btn-primary" id="btn-export-mine">تحميل نتيجتي Excel</button>
+        <button type="button" class="btn btn-ghost" id="btn-guide-end">مراجعة الدليل</button>
+        <button type="button" class="btn btn-ghost" id="btn-restart">إعادة اللعب من البداية</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="toast hidden" id="toast" role="status"></div>
+
+  <div class="overlay hidden" id="overlay" hidden>
+    <div class="modal" id="modal"></div>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
