@@ -8,7 +8,10 @@
     kept: [],
     order: [],
     triedWrong: [],
+    picks: [],
     log: [],
+    startedAt: 0,
+    scenarioStarted: 0,
     studentName: "",
     studentClass: "",
     selected: null,
@@ -40,10 +43,17 @@
     return "<Row>" + cells.join("") + "</Row>";
   }
 
-  function nowStamp() {
-    var d = new Date();
+  function nowStamp(date) {
+    var d = date || new Date();
     var p = function (n) { return (n < 10 ? "0" : "") + n; };
-    return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) + " " + p(d.getHours()) + ":" + p(d.getMinutes());
+    return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) + " " + p(d.getHours()) + ":" + p(d.getMinutes()) + ":" + p(d.getSeconds());
+  }
+
+  function formatDuration(totalSeconds) {
+    var s = Math.max(0, Math.round(totalSeconds));
+    var m = Math.floor(s / 60);
+    var r = s % 60;
+    return m + ":" + (r < 10 ? "0" : "") + r;
   }
 
   function loadRoster() {
@@ -60,6 +70,16 @@
 
   function snapshotScenario() {
     var sc = current();
+    var seconds = Math.max(1, Math.round((Date.now() - (state.scenarioStarted || Date.now())) / 1000));
+    var missing = sc.needed.filter(function (id) { return state.kept.indexOf(id) === -1; });
+    var missed = missing.map(function (id) {
+      return {
+        name: data.items[id].name,
+        axis: axisName(data.items[id].axis),
+        result: "ناقصة",
+        why: sc.why[id] || ""
+      };
+    });
     state.log.push({
       num: state.index + 1,
       company: sc.company,
@@ -67,8 +87,12 @@
       correct: state.kept.length,
       needed: sc.needed.length,
       wrong: state.triedWrong.length,
+      seconds: seconds,
+      durationText: formatDuration(seconds),
       chosen: state.kept.map(function (id) { return data.items[id].name; }).join("، "),
-      rejected: state.triedWrong.map(function (id) { return data.items[id].name; }).join("، ")
+      missing: missed.map(function (item) { return item.name; }).join("، "),
+      rejected: state.triedWrong.map(function (id) { return data.items[id].name; }).join("، "),
+      picks: state.picks.concat(missed)
     });
   }
 
@@ -80,13 +104,28 @@
       correctTotal += item.correct;
     });
     var percent = neededTotal ? Math.round((correctTotal / neededTotal) * 100) : 0;
+    var finished = new Date();
+    var started = state.startedAt ? new Date(state.startedAt) : finished;
+    var durationSeconds = Math.max(1, Math.round((finished.getTime() - started.getTime()) / 1000));
+    var missedCount = 0;
+    state.log.forEach(function (item) {
+      (item.picks || []).forEach(function (pick) {
+        if (pick.result === "ناقصة") missedCount += 1;
+      });
+    });
     return {
+      kind: "l2infra",
       name: state.studentName,
       klass: state.studentClass,
-      when: nowStamp(),
+      when: nowStamp(finished),
+      startedAt: nowStamp(started),
+      finishedAt: nowStamp(finished),
+      durationText: formatDuration(durationSeconds),
+      durationSeconds: durationSeconds,
       score: state.score,
       correct: state.correct,
       wrong: state.wrong,
+      missed: missedCount,
       scenarios: state.log.length,
       percent: percent,
       details: state.log.slice()
@@ -187,10 +226,13 @@
     var html = row([
       headerCell("الاسم"),
       headerCell("الشعبة"),
-      headerCell("التاريخ والوقت"),
+      headerCell("وقت البدء"),
+      headerCell("وقت التسليم"),
+      headerCell("المدة"),
       headerCell("النقاط"),
       headerCell("اختيارات صحيحة"),
       headerCell("محاولات خاطئة"),
+      headerCell("ناقصة"),
       headerCell("عدد السيناريوهات"),
       headerCell("نسبة الإنجاز %")
     ]);
@@ -198,10 +240,13 @@
       html += row([
         cell(item.name),
         cell(item.klass || "-"),
-        cell(item.when),
+        cell(item.startedAt || item.when),
+        cell(item.finishedAt || item.when),
+        cell(item.durationText || "-"),
         cell(item.score, "Number"),
         cell(item.correct, "Number"),
         cell(item.wrong, "Number"),
+        cell(item.missed || 0, "Number"),
         cell(item.scenarios, "Number"),
         cell(item.percent, "Number")
       ]);
@@ -218,9 +263,11 @@
       headerCell("العنوان"),
       headerCell("صحيحة"),
       headerCell("المطلوب"),
+      headerCell("المدة"),
       headerCell("أخطاء"),
-      headerCell("ما اختاره"),
-      headerCell("ما جرّبه بالخطأ")
+      headerCell("ما اختارته صح"),
+      headerCell("ما جرّبته بالخطأ"),
+      headerCell("ما نقص")
     ]);
     roster.forEach(function (item) {
       (item.details || []).forEach(function (rowItem) {
@@ -232,10 +279,44 @@
           cell(rowItem.title),
           cell(rowItem.correct, "Number"),
           cell(rowItem.needed, "Number"),
+          cell(rowItem.durationText || "-"),
           cell(rowItem.wrong, "Number"),
           cell(rowItem.chosen || "-"),
-          cell(rowItem.rejected || "-")
+          cell(rowItem.rejected || "-"),
+          cell(rowItem.missing || "-")
         ]);
+      });
+    });
+    return html;
+  }
+
+  function pickRows(roster) {
+    var html = row([
+      headerCell("الاسم"),
+      headerCell("الشعبة"),
+      headerCell("وقت التسليم"),
+      headerCell("رقم المهمة"),
+      headerCell("المؤسسة"),
+      headerCell("البطاقة"),
+      headerCell("النوع"),
+      headerCell("النتيجة"),
+      headerCell("التفسير")
+    ]);
+    roster.forEach(function (item) {
+      (item.details || []).forEach(function (scenario) {
+        (scenario.picks || []).forEach(function (pick) {
+          html += row([
+            cell(item.name),
+            cell(item.klass || "-"),
+            cell(item.finishedAt || item.when),
+            cell(scenario.num, "Number"),
+            cell(scenario.company),
+            cell(pick.name),
+            cell(pick.axis || "-"),
+            cell(pick.result),
+            cell(pick.why || "-")
+          ]);
+        });
       });
     });
     return html;
@@ -248,7 +329,8 @@
     }
     var xml = workbookXml([
       worksheet("ملخص الصف", summaryRows(roster)),
-      worksheet("تفاصيل السيناريوهات", detailRows(roster))
+      worksheet("تفاصيل المهام", detailRows(roster)),
+      worksheet("كل الاختيارات", pickRows(roster))
     ]);
     var blob = new Blob(["\uFEFF" + xml], { type: "application/vnd.ms-excel;charset=utf-8;" });
     var link = document.createElement("a");
@@ -451,6 +533,8 @@
     var sc = current();
     state.kept = [];
     state.triedWrong = [];
+    state.picks = [];
+    state.scenarioStarted = Date.now();
     state.order = shuffle(sc.pool);
     state.selected = null;
     state.complete = false;
@@ -628,6 +712,12 @@
     if (state.kept.indexOf(id) !== -1) return;
     if (sc.needed.indexOf(id) !== -1) {
       state.kept.push(id);
+      state.picks.push({
+        name: data.items[id].name,
+        axis: axisName(data.items[id].axis),
+        result: "صحيحة",
+        why: sc.why[id] || ""
+      });
       state.score += 10;
       state.correct += 1;
       els.score.textContent = state.score;
@@ -641,6 +731,12 @@
     } else {
       if (state.triedWrong.indexOf(id) === -1) {
         state.triedWrong.push(id);
+        state.picks.push({
+          name: data.items[id].name,
+          axis: axisName(data.items[id].axis),
+          result: "خاطئة",
+          why: sc.whyNot[id] || ""
+        });
         state.wrong += 1;
         state.score = Math.max(0, state.score - 1);
         els.score.textContent = state.score;
@@ -677,6 +773,8 @@
     document.getElementById("end-score").textContent = state.score;
     document.getElementById("end-correct").textContent = state.correct;
     document.getElementById("end-wrong").textContent = state.wrong;
+    var endTime = document.getElementById("end-time");
+    if (endTime) endTime.textContent = record.durationText;
     var note = "القاعدة: الأداة الصحيحة هي التي تخدم وظيفة هذه المؤسسة اليوم. ";
     if (state.wrong <= 4) note += "اختياركِ كان دقيقاً.";
     else if (state.wrong <= 10) note += "أداؤكِ جيد. البطاقات التي رُفضت صحيحة في قصة أخرى.";
@@ -733,6 +831,7 @@
     }
     state.studentName = name;
     state.studentClass = classEl ? (classEl.value || "").trim() : "";
+    state.startedAt = Date.now();
     state.index = 0;
     state.score = 0;
     state.correct = 0;
